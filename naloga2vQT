@@ -15,40 +15,39 @@ public:
 
 private:
     void resize(int new_size);
-    T* m_pElements = nullptr;
-    int m_iSize = 0;
-    int m_iTop = 0;
+    QVector<T> m_elements;
+    int m_size = 0;
+    int m_top = 0;
 };
 
 template <typename T>
 Stack<T>::Stack() {
-    m_iSize = 10;
-    m_pElements = new T[m_iSize];
+    m_size = 10;
+    m_elements.resize(m_size);
 }
 
 template <typename T>
 Stack<T>::~Stack() {
-    delete[] m_pElements;
 }
 
 template <typename T>
 void Stack<T>::push(T el) {
-    if (m_iTop == m_iSize) {
-        resize(2 * m_iSize);
+    if (m_top == m_size) {
+        resize(2 * m_size);
     }
-    m_pElements[m_iTop++] = el;
+    m_elements[m_top++] = el;
 }
 
 template <typename T>
 T Stack<T>::pop() {
-    if (m_iTop == 0) {
-        throw std::out_of_range("Prazni sklad!");
+    if (m_top == 0) {
+        throw std::out_of_range("Prazen sklad!");
     }
 
-    T element = m_pElements[--m_iTop];
+    T element = m_elements[--m_top];
 
-    if (m_iTop <= m_iSize / 4 && m_iSize > 10) {
-        resize(m_iSize / 2);
+    if (m_top <= m_size / 4 && m_size > 10) {
+        resize(m_size / 2);
     }
 
     return element;
@@ -56,22 +55,17 @@ T Stack<T>::pop() {
 
 template <typename T>
 int Stack<T>::count() {
-    return m_iTop;
+    return m_top;
 }
 
 template <typename T>
 void Stack<T>::resize(int new_size) {
-    T* new_elements = new T[new_size];
-    for (int i = 0; i < m_iTop; ++i) {
-        new_elements[i] = m_pElements[i];
-    }
-    delete[] m_pElements;
-    m_pElements = new_elements;
-    m_iSize = new_size;
+    m_elements.resize(new_size);
+    m_size = new_size;
 }
 
 template <typename T>
-void insertionSort(std::vector<T>& v) {
+void insertionSort(QVector<T>& v) {
     int n = v.size();
     for (int i = 1; i < n; ++i) {
         T key = v[i];
@@ -85,11 +79,11 @@ void insertionSort(std::vector<T>& v) {
 }
 
 template <typename T>
-void merge(std::vector<T>& v, int l, int m, int r) {
+void merge(QVector<T>& v, int l, int m, int r) {
     int n1 = m - l + 1;
     int n2 = r - m;
 
-    std::vector<T> L(n1), R(n2);
+    QVector<T> L(n1), R(n2);
 
     for (int i = 0; i < n1; ++i)
         L[i] = v[l + i];
@@ -122,7 +116,7 @@ void merge(std::vector<T>& v, int l, int m, int r) {
 }
 
 template <typename T>
-void mergeSortHelper(std::vector<T>& v, int l, int r) {
+void mergeSortHelper(QVector<T>& v, int l, int r) {
     if (l < r) {
         int m = l + (r - l) / 2;
 
@@ -134,7 +128,7 @@ void mergeSortHelper(std::vector<T>& v, int l, int r) {
 }
 
 template <typename T>
-void mergeSort(std::vector<T>& v) {
+void mergeSort(QVector<T>& v) {
     int n = v.size();
     mergeSortHelper(v, 0, n - 1);
 }
@@ -151,26 +145,26 @@ int main(int argc, char *argv[])
 
     std::cout << "Število elementov v skladu: " << stack.count() << std::endl;
 
-    std::cout << "Izbrisan element iz sklada: " << stack.pop() << std::endl;
+    std::cout << "Izbrisani element: " << stack.pop() << std::endl;
 
-    std::cout << "Število elementov v skladu po izbrisu: " << stack.count() << std::endl;
+    std::cout << "Število elementov v skaldu po izbrisu: " << stack.count() << std::endl;
 
-    //sortiranje - insertion
-    std::vector<int> vec = {12, 1, 2, 4, 6, 8, 11, 20, 21, 21, 5};
-    std::vector<int> unsortedVec = vec;
+    // Urejanje - inseriton
+    QVector<int> vec = {12, 1, 2, 4, 6, 8, 11, 20, 21, 21, 5};
+    QVector<int> unsortedVec = vec;
 
-    // čas izvajanja
+    // Čas izvajannja - insertion sort
     auto start = std::chrono::steady_clock::now();
     insertionSort(vec);
     auto end = std::chrono::steady_clock::now();
     std::cout << "Čas izvajanja: "
               << std::chrono::duration_cast<std::chrono::microseconds>(end - start).count()
               << " microseconds" << std::endl;
-    std::cout << "Neurejnega: : ";
+    std::cout << "Neurejenega:: ";
     for (auto& elem : unsortedVec)
         std::cout << elem << " ";
     std::cout << std::endl;
-    std::cout << "Urejenega z insertion ";
+    std::cout << "Urejenega z insertion: ";
     for (auto& elem : vec)
         std::cout << elem << " ";
     std::cout << std::endl;
@@ -189,22 +183,10 @@ int main(int argc, char *argv[])
     for (auto& elem : unsortedVec)
         std::cout << elem << " ";
     std::cout << std::endl;
-    std::cout << "Urejenega z merge sort ";
+    std::cout << "Urejenega z merge urejanje: ";
     for (auto& elem : vec)
         std::cout << elem << " ";
     std::cout << std::endl;
 
     return a.exec();
 }
-
-// Težave:
-// 1. Vstavljanje novega elementa na koncu bi bilo neučinkovito, ker bi za vsako vstavljanje bo treba premakniti vsak drugi element.
-// 2. Odstranjevanje elementa z začetka bi zahtevalo premikanje vsakega drugega elementa, kar bi trajalo dolgo, zlasti pri velikih skladov.
-// Ko se sklad napolni, povečamo njegovo zmogljivost za 100 %, ker s tem zmanjšamo potrebo po prerazporeditvah, kar povečuje učinkovitost, saj je prerazporeditev drag postopek.
-
-// Dijkstrov algoritem:
-// Dijkstrov algoritem se uporablja za izračun najkrajše poti v grafu. Ta algoritem se lahko uporabi za določitev najkrajše poti med vozlišči grafa,
-// ki imajo težave s povezavami. Metoda v vsakem koraku izbere vozlišče, ki je najbližje začetnemu vozlišču, in če so nove razdalje manjše od znanih razdalj,
-// izbrano vozlišče posodobi razdalje do sosednjih vozlišč. Ta postopek se ponavlja, dokler ni obdelano vsako vozlišče.
-
-// Algoritem se začne v prvem vozlišču in izbira vozlišče, ki mu je najbližje, dokler ne pride do zadnjega vozlišča ali ne obdela vsakega vozlišča.
