@@ -1,0 +1,105 @@
+#include <iostream>
+
+template <typename T>
+class Stack {
+public:
+    Stack();
+    virtual ~Stack();
+    void push(T el);
+    T pop();
+    int count();
+
+private:
+    void resize(int new_size);
+    T* m_pElements = nullptr;
+    int m_iSize = 0;
+    int m_iTop = 0;
+};
+
+template <typename T>
+Stack<T>::Stack() {
+    m_iSize = 10;
+    m_pElements = new T[m_iSize];
+}
+
+template <typename T>
+Stack<T>::~Stack() {
+    delete[] m_pElements;
+}
+
+template <typename T>
+void Stack<T>::push(T el) {
+    if (m_iTop == m_iSize) {
+        resize(2 * m_iSize);
+    }
+    m_pElements[m_iTop++] = el;
+}
+
+template <typename T>
+T Stack<T>::pop() {
+    if (m_iTop == 0) {
+        throw std::out_of_range("Stack is empty");
+    }
+
+    T element = m_pElements[--m_iTop];
+
+    if (m_iTop <= m_iSize / 4 && m_iSize > 10) {
+        resize(m_iSize / 2);
+    }
+
+    return element;
+}
+
+template <typename T>
+int Stack<T>::count() {
+    return m_iTop;
+}
+
+template <typename T>
+void Stack<T>::resize(int new_size) {
+    T* new_elements = new T[new_size];
+    for (int i = 0; i < m_iTop; ++i) {
+        new_elements[i] = m_pElements[i];
+    }
+    delete[] m_pElements;
+    m_pElements = new_elements;
+    m_iSize = new_size;
+}
+
+int main() {
+    Stack<int> stack;
+    stack.push(1);
+/*
+    stack.push(2);
+    stack.push(3);
+    stack.push(3);
+    stack.push(3);
+    stack.push(3);
+    stack.push(3);
+    stack.push(3);
+    stack.push(3);
+    stack.push(3);
+    stack.push(3);
+*/
+    std::cout << "Število elementov v skladu: " << stack.count() << std::endl;
+
+    std::cout << "Izbrisan element iz sklada: " << stack.pop() << std::endl;
+
+    std::cout << "Število elementov v skladu po izbrisu: " << stack.count() << std::endl;
+
+    return 0;
+}
+
+// Težave:
+// 1. Vstavljanje novega elementa na koncu bi bilo neučinkovito, ker bi za vsako vstavljanje bo treba premakniti vsak drugi element.
+// 2. Odstranjevanje elementa z začetka bi zahtevalo premikanje vsakega drugega elementa, kar bi trajalo dolgo, zlasti pri velikih skladov.
+// Ko se sklad napolni, povečamo njegovo zmogljivost za 100 %, ker s tem zmanjšamo potrebo po prerazporeditvah, kar povečuje učinkovitost, saj je prerazporeditev drag postopek.
+
+// Dijkstrov algoritem:
+// Dijkstrov algoritem se uporablja za izračun najkrajše poti v grafu. Ta algoritem se lahko uporabi za določitev najkrajše poti med vozlišči grafa,
+// ki imajo težave s povezavami. Metoda v vsakem koraku izbere vozlišče, ki je najbližje začetnemu vozlišču, in če so nove razdalje manjše od znanih razdalj,
+// izbrano vozlišče posodobi razdalje do sosednjih vozlišč. Ta postopek se ponavlja, dokler ni obdelano vsako vozlišče.
+
+// Algoritem se začne v prvem vozlišču in izbira vozlišče, ki mu je najbližje, dokler ne pride do zadnjega vozlišča ali ne obdela vsakega vozlišča.
+
+
