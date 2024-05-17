@@ -1,0 +1,68 @@
+//Podobno kot smo delali na vajah
+#include <iostream>
+#include <stdexcept>
+
+template <typename T> 
+class Stack {
+public:
+    Stack() {
+        m_iSize = 10;
+        m_pElements = new T[m_iSize];
+    }
+
+    ~Stack() {
+        delete[] m_pElements;
+    }
+
+    void push(T el) {
+        if (m_iTop == m_iSize) {
+            resize(m_iSize * 2);
+        }
+        m_pElements[m_iTop++] = el;
+    }
+
+    T pop() {
+        if (isEmpty()) {
+            throw std::runtime_error("Stack is empty");
+        }
+        T element = m_pElements[--m_iTop];
+        if (m_iTop <= m_iSize / 4 && m_iSize > 10) {
+            resize(m_iSize / 2);
+        }
+        return element;
+    }
+
+    int count() {
+        return m_iTop;
+    }
+
+private:
+    T* m_pElements;
+    int m_iSize;
+    int m_iTop;
+
+    void resize(int newSize) {
+        T* newArray = new T[newSize];
+        for (int i = 0; i < m_iTop; ++i) {
+            newArray[i] = m_pElements[i];
+        }
+        delete[] m_pElements;
+        m_pElements = newArray;
+        m_iSize = newSize;
+    }
+
+    bool isEmpty() {
+        return m_iTop == 0;
+    }
+};
+
+int main() {
+    Stack<int> stack;
+    stack.push(1);
+    stack.push(2);
+    stack.push(3);
+    std::cout << "Št.elementov v skladu: " << stack.count() << std::endl;
+    std::cout << "Element ki smo ga pop: " << stack.pop() << std::endl;
+    std::cout << "Število elementov po popu: " << stack.count() << std::endl;
+    return 0;
+}
