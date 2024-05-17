@@ -38,7 +38,7 @@ void Stack<T>::push(T el) {
 template <typename T>
 T Stack<T>::pop() {
     if (m_iTop == 0) {
-        throw std::out_of_range("Stack is empty");
+        throw std::out_of_range("Prazen sklad!");
     }
 
     T element = m_pElements[--m_iTop];
